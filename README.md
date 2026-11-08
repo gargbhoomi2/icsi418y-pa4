@@ -1,106 +1,154 @@
-# ICSI 418Y PA3 — Project Management Application
+# ICSI 418Y – PA4: User Stories and Project Backlog
 
-## Overview
+## Project Description
 
-This application extends the existing login and signup application with project creation and project membership management. Registered users can create projects, select a project lead, view projects, and manage project members.
+This project is a web-based Project Management Application. It allows users to create accounts, log in, create projects, manage project members, and manage user stories.
 
-## Features
-
-- User signup and login.
-- Create projects with a name, description, status, and project lead.
-- View all created projects and their project leads.
-- View project members.
-- Add registered users to projects.
-- Allow users to participate in multiple projects.
-- Prevent duplicate membership in the same project.
-- Remove regular project members.
-- Prevent removing the project lead.
-- Display success and error messages for operations.
+For PA4, I added the User Stories and Project Backlog features to the existing application.
 
 ## Technologies Used
 
-- React
-- Vite
-- Node.js
-- Express
-- MongoDB Atlas
-- MongoDB ObjectIds
+- **Frontend:** React and JavaScript
+- **Backend:** Node.js and Express
+- **Database:** MongoDB
+- **Development Tools:** VS Code, Git, and GitHub
 
-## Prerequisites
+## Main Features
 
-- Node.js and npm
-- A MongoDB Atlas account and database connection string
+### 1. User Signup and Login
+- Users can create an account.
+- Existing users can log in.
+- The application checks usernames and login information.
 
-## Installation and Setup
+### 2. Project Management
+- Users can view existing projects.
+- Projects contain a description, status, and project lead.
+- Users can manage project memberships.
 
-### 1. Clone the repository
+### 3. User Stories
+- Users can create user stories for a selected project.
+- Each story contains a title, description, priority, status, and assigned member.
+- A new story automatically receives the status **To Do**.
+- Stories can be assigned to project members or left unassigned.
 
-```bash
-git clone https://github.com/gargbhoomi2/icsi418y-pa3.git
-cd icsi418y-pa3
+### 4. Project Backlog
+- Users can view all stories belonging to a selected project.
+- The backlog displays the story title, description, priority, status, and assigned member.
+- Users can edit and delete stories.
+
+### 5. Story Assignment and Membership Rules
+- Only current project members can be assigned to stories.
+- A project lead cannot be removed.
+- A project member cannot be removed while they are assigned to one or more stories in that project.
+- Members can be removed after their story assignments are changed or removed.
+
+### 6. Data Storage
+- MongoDB stores user, project, membership, and user story information.
+- Changes remain saved after refreshing the application.
+
+## User Story Format
+
+User stories follow this format:
+
+**As a [type of user], I want [goal], so that [benefit].**
+
+Each user story has:
+- Title
+- Description
+- Priority: High, Medium, or Low
+- Status: To Do, In Progress, or Done
+- Assigned project member or Unassigned
+
+## Project Structure
+
+```text
+icsi418y-pa4/
+│
+├── client/
+│   └── src/
+│       ├── App.jsx
+│       ├── CreateStory.jsx
+│       ├── ProjectBacklog.jsx
+│       └── EditStory.jsx
+│
+├── server/
+│   └── server.js
+│
+├── README.md
+└── .gitignore
 ```
 
-### 2. Set up the backend
+## How to Run the Application
 
-Open a terminal in the project folder and run:
+### Requirements
+- Node.js and npm
+- MongoDB connection
+- A code editor such as VS Code
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/gargbhoomi2/icsi418y-pa4.git
+cd icsi418y-pa4
+```
+
+### Step 2: Install Backend Dependencies
 
 ```bash
 cd server
 npm install
 ```
 
-Create a file named `.env` inside the `server` folder. Add your MongoDB connection string:
-
-```env
-MONGO_URI=your_mongodb_connection_string
-```
-
-Replace the example value with your own MongoDB Atlas connection string. Do not commit your `.env` file or share database credentials.
-
-Start the backend:
+### Step 3: Start the Backend
 
 ```bash
-node server.js
+npm start
 ```
 
-The Express server runs on port 9000.
+The backend runs on port **9000**.
 
-### 3. Set up the frontend
+Make sure the MongoDB connection is configured correctly before starting the server.
 
-Open a **second terminal** in the project folder and run:
+### Step 4: Install Frontend Dependencies
+
+Open a second terminal:
 
 ```bash
 cd client
 npm install
+```
+
+### Step 5: Start the Frontend
+
+```bash
 npm run dev
 ```
 
-Open the local URL displayed by Vite, usually:
+Open the local URL displayed in the terminal. For example:
 
-http://localhost:5173/
+```text
+http://localhost:5174/
+```
 
-Keep both terminals running while using the application.
+## Testing
 
-## Database Design
+The following features were tested:
 
-The application uses MongoDB collections to store users, projects, and project memberships.
+- Creating user stories in different projects.
+- Using High, Medium, and Low priorities.
+- Displaying To Do, In Progress, and Done statuses.
+- Assigning stories to project members.
+- Creating unassigned stories.
+- Editing story information and status.
+- Deleting stories.
+- Checking that changes remain saved after refreshing.
+- Preventing removal of the project lead.
+- Allowing removal of an unassigned project member.
+- Preventing removal of a member who is assigned to a story.
 
-### Users
+## Author
 
-Stores registered user information used for login and project membership.
+**Bhoomi Garg**
 
-### Projects
-
-Stores project information, including the project name, description, status, and `project_lead_id`. The project lead references a registered user through a MongoDB ObjectId.
-
-### ProjectMemberships
-
-Stores the relationship between users and projects using `project_id` and `user_id` ObjectIds. A unique compound index on these fields prevents the same user from being added to the same project more than once.
-
-## Validation and Error Handling
-
-The backend validates required project information and checks that referenced users and projects exist. It prevents duplicate memberships, returns an error when a duplicate member is added, and prevents the project lead from being removed as a regular member.
-
-## GitHub Repository
-
-https://github.com/gargbhoomi2/icsi418y-pa3
+University at Albany  
+ICSI 418Y – PA4

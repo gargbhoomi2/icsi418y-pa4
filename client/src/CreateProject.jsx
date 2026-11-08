@@ -1,148 +1,118 @@
 
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:9000";
+const API = "http://localhost:9000";
 
 function CreateProject({ onProjectCreated }) {
-    const [users, setUsers] = useState([]);
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [status, setStatus] = useState("Planning");
-    const [projectLeadId, setProjectLeadId] = useState("");
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    status: "Planning",
+    project_lead_id: ""
+  });
+  const [message, setMessage] = useState("");
 
-    useEffect(() => {
-        async function loadUsers() {
-            try {
-                const response = await fetch(`${API_URL}/users`);
-                const data = await response.json();
+  useEffect(() => {
+    fetch(`${API}/users`)
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(() => setMessage("Could not load registered users."));
+  }, []);
 
-                if (!response.ok) {
-                    throw new Error(data.message || "Could not load users.");
-                }
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-                setUsers(data);
-            } catch (error) {
-                setMessage(error.message);
-            }
-        }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
 
-        loadUsers();
-    }, []);
+    try {
+      const response = await fetch(`${API}/projects`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
 
-    async function handleSubmit(event) {
-        event.preventDefault();
-        setMessage("");
+      const data = await response.json();
+      setMessage(data.message);
 
-        if (!name.trim() || !description.trim() || !projectLeadId) {
-            setMessage("Please complete all required fields.");
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const response = await fetch(`${API_URL}/projects`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    name,
-                    description,
-                    status,
-                    project_lead_id: projectLeadId
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Could not create project.");
-            }
-
-            setMessage("Project created successfully!");
-            setName("");
-            setDescription("");
-            setStatus("Planning");
-            setProjectLeadId("");
-
-            if (onProjectCreated) {
-                onProjectCreated();
-            }
-        } catch (error) {
-            setMessage(error.message);
-        } finally {
-            setLoading(false);
-        }
+      if (response.ok) {
+        setForm({
+          name: "",
+          description: "",
+          status: "Planning",
+          project_lead_id: ""
+        });
+        onProjectCreated?.();
+      }
+    } catch {
+      setMessage("Unable to connect to server.");
     }
+  };
 
-    return (
-        <section>
-            <h2>Create Project</h2>
+  return (
+    <section>
+      <h2>Create Project</h2>
 
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="project-name">Name *</label>
-                    <input
-                        id="project-name"
-                        type="text"
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
-                        required
-                    />
-                </div>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="name"
+          placeholder="Project Name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
 
-                <div>
-                    <label htmlFor="project-description">Description *</label>
-                    <textarea
-                        id="project-description"
-                        value={description}
-                        onChange={(event) => setDescription(event.target.value)}
-                        required
-                    />
-                </div>
+        <br /><br />
 
-                <div>
-                    <label htmlFor="project-status">Status *</label>
-                    <select
-                        id="project-status"
-                        value={status}
-                        onChange={(event) => setStatus(event.target.value)}
-                        required
-                    >
-                        <option value="Planning">Planning</option>
-                        <option value="Active">Active</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                </div>
+        <textarea
+          name="description"
+          placeholder="Project Description"
+          value={form.description}
+          onChange={handleChange}
+          required
+        />
 
-                <div>
-                    <label htmlFor="project-lead">Project Lead *</label>
-                    <select
-                        id="project-lead"
-                        value={projectLeadId}
-                        onChange={(event) => setProjectLeadId(event.target.value)}
-                        required
-                    >
-                        <option value="">Select a registered user</option>
-                        {users.map((user) => (
-                            <option key={user._id} value={user._id}>
-                                {user.full_name} (@{user.username})
-                            </option>
-                        ))}
-                    </select>
-                </div>
+        <br /><br />
 
-                <button type="submit" disabled={loading}>
-                    {loading ? "Creating..." : "Create Project"}
-                </button>
-            </form>
+        <label>Status: </label>
+        <select
+          name="status"
+          value={form.status}
+          onChange={handleChange}
+        >
+          <option value="Planning">Planning</option>
+          <option value="Active">Active</option>
+          <option value="Completed">Completed</option>
+        </select>
 
-            {message && <p role="status">{message}</p>}
-        </section>
-    );
+        <br /><br />
+
+        <label>Project Lead: </label>
+        <select
+          name="project_lead_id"
+          value={form.project_lead_id}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select a registered user</option>
+          {users.map(user => (
+            <option key={user._id} value={user._id}>
+              {user.full_name} (@{user.username})
+            </option>
+          ))}
+        </select>
+
+        <br /><br />
+
+        <button type="submit">Create Project</button>
+      </form>
+
+      {message && <p role="status">{message}</p>}
+    </section>
+  );
 }
 
 export default CreateProject;
